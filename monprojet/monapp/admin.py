@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import AdminSite
-from .models import Resume, Skill, Project, Category, Post, Comment
+from .models import Resume, Skill, Project, Category, Post, Comment, Citation, Paragraph
 
 class CustomAdminSite(AdminSite):
     site_header = 'Portefolio'
@@ -18,6 +18,12 @@ class ResumeAdmin(admin.ModelAdmin):
 # Définir la classe d'administration pour le modèle Skill
 class SkillAdmin(admin.ModelAdmin):
     list_display = ('titre', 'pourcentage')
+
+class CitationAdmin(admin.ModelAdmin):
+    list_display = ('auteur', 'content')
+
+class ParagraphAdmin(admin.ModelAdmin):
+    list_display = ('titre', 'content')
 
 # Définir la classe d'administration pour le modèle Project
 class ProjectAdmin(admin.ModelAdmin):
@@ -44,12 +50,16 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 # Importez vos classes d'administration personnalisées
-from .admin import ResumeAdmin, SkillAdmin, ProjectAdmin, CategoryAdmin, PostAdmin, CommentAdmin
+from .admin import ResumeAdmin, SkillAdmin, ProjectAdmin, CategoryAdmin, PostAdmin, CommentAdmin ,CitationAdmin ,ParagraphAdmin
 
 # Inscrivez vos classes d'administration personnalisées sur votre site d'administration personnalisé
 custom_admin_site = CustomAdminSite()
 
 custom_admin_site.register(Resume, ResumeAdmin)
+
+custom_admin_site.register(Citation, CitationAdmin)
+custom_admin_site.register(Paragraph, ParagraphAdmin)
+
 custom_admin_site.register(Skill, SkillAdmin)
 custom_admin_site.register(Project, ProjectAdmin)
 custom_admin_site.register(Category, CategoryAdmin)

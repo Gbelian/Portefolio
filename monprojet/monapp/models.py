@@ -12,6 +12,22 @@ class Resume(models.Model):
     def __str__(self):
         return self.diplome
     
+class Citation(models.Model):
+    auteur = models.CharField(max_length=200)
+    content = models.TextField()
+    image = models.ImageField(upload_to='citation_images/')  
+    
+    def __str__(self):
+        return self.auteur
+
+
+
+class Paragraph(models.Model):
+    titre = models.CharField(max_length=200)
+    content = models.TextField()
+    def __str__(self):
+        return self.titre
+
 class Skill(models.Model):
     titre = models.CharField(max_length=100)  # Correction: Ajout de max_length
     pourcentage = models.IntegerField()
@@ -38,6 +54,10 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('category_posts', kwargs={'slug': self.slug})
+
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -45,6 +65,11 @@ class Post(models.Model):
     slug = models.SlugField(max_length=200, unique=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
+    content1 = models.TextField(default='Default content1 text')
+    description = models.TextField(default='Default description text')
+    paragraph2 = models.TextField(default='Default description text')
+    paragraph3 = models.TextField(default='Default description text')
+    paragraph4 = models.TextField(default='Default description text')
     created_at = models.DateTimeField(default=timezone.now)
     published_at = models.DateTimeField(blank=True, null=True)
     categories = models.ManyToManyField(Category, related_name='posts')
@@ -58,10 +83,14 @@ class Post(models.Model):
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     author = models.CharField(max_length=100)
+    photo = models.ImageField(upload_to='auteur_images/', default='auteur_images/staff-1.jpg')
     email = models.EmailField()
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
     active = models.BooleanField(default=True)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f'Comment by {self.author} on {self.post}'
+ 

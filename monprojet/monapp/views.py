@@ -1,8 +1,9 @@
 from django.shortcuts import render
 
 from django.shortcuts import render
-from .models import Resume, Post, Skill, Project, Category
+from .models import Resume, Post, Skill, Project, Category ,Paragraph,Citation
 
+from .forms import CommentForm
 
 
 def home(request):
@@ -28,9 +29,49 @@ from django.shortcuts import render, get_object_or_404
 from .models import Post
 
 
+
 from django.shortcuts import render, get_object_or_404
+from .models import Post, Category
+
+from django.shortcuts import render, get_object_or_404
+from .models import Post, Comment, Category
+from .forms import CommentForm
+
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 def post_detail(request, slug):
-    # Récupérer le projet basé sur le slug
-    posts = get_object_or_404(Post, slug=slug)
-    return render(request, 'monapp/single.html', {'posts': posts})
+    post = get_object_or_404(Post, slug=slug)
+    citations = Citation.objects.all()
+    paragraphs = Paragraph.objects.all()
+    recent_posts = Post.objects.all().order_by('-published_at')[:3]
+    categories = Category.objects.all()
+    comments = Comment.objects.all()
+    comment = post.comments.filter(active=True, parent__isnull=True)
+    new_comment = None
+    comment_form = CommentForm()
+
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            parent_id = request.POST.get('parent_id')
+            new_comment = comment_form.save(commit=False)
+            new_comment.post = post
+            if parent_id:
+                new_comment.parent = Comment.objects.get(id=parent_id)
+            new_comment.photo = request.FILES['photo']
+            new_comment.save()
+            comment_form = CommentForm()
+            return HttpResponseRedirect(reverse('post_detail', args=[slug]))
+
+    return render(request, 'monapp/single.html', {
+        'post': post,
+        'paragraphs' : paragraphs,
+        'citations': citations,
+        'categories': categories,
+        'recent_posts': recent_posts,
+        'comments': comment,
+        'new_comment': new_comment,
+        'comment_form': comment_form,
+    })
