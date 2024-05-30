@@ -41,6 +41,12 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+
+
+from django.shortcuts import render
+from .models import Post
+
+
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
     citations = Citation.objects.all()
@@ -64,7 +70,10 @@ def post_detail(request, slug):
             new_comment.save()
             comment_form = CommentForm()
             return HttpResponseRedirect(reverse('post_detail', args=[slug]))
-
+        else:
+            query = request.GET.get('q')
+            results = Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
+            post = results
     return render(request, 'monapp/single.html', {
         'post': post,
         'paragraphs' : paragraphs,
