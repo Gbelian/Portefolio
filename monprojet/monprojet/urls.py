@@ -21,11 +21,39 @@ from django.conf import settings
 from django.conf.urls.static import static
 from monapp.admin import custom_admin_site
 
+
+# urls.py
+from django.conf.urls import handler404
+from django.shortcuts import render
+
+def custom_page_not_found_view(request, exception):
+    return render(request, "monapp/404.html", {})
+
+handler404 = custom_page_not_found_view
+
+
+
+from django.conf.urls import handler500
+
+def custom_error_view(request):
+    return render(request, "monapp/500.html", {})
+
+handler500 = custom_error_view
+
+
+from django.conf.urls import handler403
+
+def custom_permission_denied_view(request, exception):
+    return render(request, "monapp/403.html", {})
+
+handler403 = custom_permission_denied_view
+
+
+
 urlpatterns = [
     path('admin', custom_admin_site.urls),
     path('', include('monapp.urls')),
 ]
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
