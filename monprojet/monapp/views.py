@@ -5,6 +5,11 @@ from .models import Resume, Post, Skill, Project, Category ,Paragraph,Citation
 
 from .forms import CommentForm
 
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ContactForm
+
 
 def home(request):
     resumes = Resume.objects.all()
@@ -13,15 +18,37 @@ def home(request):
     latest_posts = Post.objects.all().order_by('-published_at')[:3]
     projects = Project.objects.all()
     categories = Category.objects.all()
-    
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            # Send the email
+            send_mail(
+                subject,
+                message,
+                email,  # From email
+                ['smtp.mailpro.com'],  # To email
+                fail_silently=False,
+            )
+            messages.success(request, 'Message sent successfully.')
+            return redirect('home')
+    else:
+        form = ContactForm()
+
     context = {
-        'categories':categories,
+        'categories': categories,
         'resumes': resumes,
         'posts': latest_posts,
         'skills': skills,
         'projects': projects,
+        'form': form,
     }
-    
+
     return render(request, 'monapp/index.html', context)
 
 
@@ -74,6 +101,8 @@ def post_detail(request, slug):
             query = request.GET.get('q')
             results = Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
             post = results
+    
+    
     return render(request, 'monapp/single.html', {
         'post': post,
         'paragraphs' : paragraphs,
@@ -84,6 +113,7 @@ def post_detail(request, slug):
         'new_comment': new_comment,
         'comment_form': comment_form,
     })
+
 
 
 
