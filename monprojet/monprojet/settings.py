@@ -123,6 +123,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Configurer WhiteNoise pour ignorer les erreurs de fichiers manquants
+WHITENOISE_MANIFEST_STRICT = False
 
 # Configuration pour les fichiers uploadés
 #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
