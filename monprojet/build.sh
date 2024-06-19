@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
-# exit on error
+# Exit on error
 set -o errexit
 
+# Upgrade pip to the latest version
 python -m pip install --upgrade pip
 
+# Install required packages from requirements.txt
 pip install -r requirements.txt
 
+# Collect static files
 python manage.py collectstatic --no-input
+
+# Create database migrations based on models
+python manage.py makemigrations
+
+# Apply the database migrations
 python manage.py migrate
 
-# Créez un superutilisateur (admin)
+# Create a superuser (admin)
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('beninbmcn', 'BMCN.UAC@gmail.com', 'beninbmcn')" | python manage.py shell
 
-# Lancez le serveur Gunicorn
-gunicorn JSSNUTRITION.wsgi:application
+# Start the Gunicorn server
+gunicorn monapp.wsgi:application
