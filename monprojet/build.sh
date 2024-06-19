@@ -21,4 +21,4 @@ python manage.py migrate
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('beninbmcn', 'BMCN.UAC@gmail.com', 'beninbmcn')" | python manage.py shell
 
 # Start the Gunicorn server
-gunicorn monapp.wsgi:application
+gunicorn monprojet.wsgi:application
