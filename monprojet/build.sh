@@ -5,6 +5,8 @@ set -o errexit
 # Upgrade pip to the latest version
 python -m pip install --upgrade pip
 
+pip install gunicorn
+
 # Install required packages from requirements.txt
 pip install -r requirements.txt
 
@@ -21,4 +23,4 @@ python manage.py migrate
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('beninbmcn', 'BMCN.UAC@gmail.com', 'beninbmcn')" | python manage.py shell
 
 # Start the Gunicorn server
-gunicorn monprojet.wsgi:application
+gunicorn monprojet.wsgi:application --bind 0.0.0.0:$PORT --workers 4
