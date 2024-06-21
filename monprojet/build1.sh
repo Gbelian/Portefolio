@@ -4,7 +4,15 @@ set -o errexit
 
 # Mettre à jour pip et installer les dépendances
 python -m pip install --upgrade pip
+pip install gunicorn
+
 pip install -r requirements.txt
+
+# Create database migrations based on models
+python manage.py makemigrations
+
+# Apply the database migrations
+python manage.py migrate
 
 # Configurer et démarrer MinIO Server avec des identifiants par défaut
 wget https://dl.min.io/server/minio/release/linux-amd64/minio -O /usr/local/bin/minio
@@ -19,21 +27,6 @@ chmod +x /usr/local/bin/mc
 mc alias set myminio http://localhost:9000 minioadmin minioadmin
 mc mb myminio/your-bucket-name
 
-# Configuration de Django pour utiliser MinIO
-cat <<EOL >> JSSNUTRITION/settings.py
-
-# MinIO settings
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = 'minioadmin'
-AWS_SECRET_ACCESS_KEY = 'minioadmin'
-AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
-AWS_S3_ENDPOINT_URL = 'http://localhost:9000'
-AWS_S3_REGION_NAME = 'us-east-1'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = 'public-read'
-EOL
 
 # Collecte des fichiers statiques et migrations
 python manage.py collectstatic --no-input
@@ -43,4 +36,4 @@ python manage.py migrate
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('beninbmcn', 'BMCN.UAC@gmail.com', 'beninbmcn')" | python manage.py shell
 
 # Lancez le serveur Gunicorn
-gunicorn JSSNUTRITION.wsgi:application 
+gunicorn monprojet.wsgi:application --bind 0.0.0.0:$PORT --workers 4
