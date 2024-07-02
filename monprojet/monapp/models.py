@@ -60,6 +60,7 @@ class Category(models.Model):
 
 
 class Post(models.Model):
+    titles =models.TextField(default='Default content1 text')
     title = models.CharField(max_length=200)
     image = models.ImageField(upload_to='post_images/')  # Correction: Définition du type de champ
     slug = models.SlugField(max_length=200, unique=True)
